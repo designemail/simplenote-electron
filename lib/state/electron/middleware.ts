@@ -25,8 +25,18 @@ export const middleware: S.Middleware = ({ dispatch, getState }) => {
         dispatch({ type: 'INSERT_TASK' });
         return;
 
+      case 'redo':
+        window?.editor.trigger('', 'redo');
+        return;
+
       case 'showDialog':
         dispatch(actions.ui.showDialog(command.dialog));
+        return;
+
+      case 'selectAll':
+        window?.editor.setSelection(
+          window?.editor.getModel().getFullModelRange()
+        );
         return;
 
       case 'trashNote':
@@ -75,6 +85,10 @@ export const middleware: S.Middleware = ({ dispatch, getState }) => {
 
       case 'toggleSpellCheck':
         dispatch(actions.settings.toggleSpellCheck());
+        return;
+
+      case 'undo':
+        window?.editor.trigger('', 'undo');
         return;
 
       default:

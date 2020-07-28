@@ -8,11 +8,11 @@ const buildEditMenu = (settings) => {
     submenu: [
       {
         label: '&Undo',
-        role: 'undo',
+        click: appCommandSender({ action: 'undo' }),
       },
       {
         label: '&Redo',
-        role: 'redo',
+        click: appCommandSender({ action: 'redo' }),
       },
       {
         type: 'separator',
@@ -31,7 +31,7 @@ const buildEditMenu = (settings) => {
       },
       {
         label: '&Select All',
-        role: 'selectall',
+        click: appCommandSender({ action: 'selectAll' }),
       },
       { type: 'separator' },
       {
