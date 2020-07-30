@@ -158,6 +158,20 @@ class NoteContentEditor extends Component<Props> {
     window.monaco = monaco;
     this.editor = editor;
 
+    window.electron.receive('appCommand', (command) => {
+      switch (command.action) {
+        case 'redo':
+          editor.trigger('', 'redo');
+          return;
+        case 'selectAll':
+          editor.setSelection(editor.getModel().getFullModelRange());
+          return;
+        case 'undo':
+          editor.trigger('', 'undo');
+          return;
+      }
+    });
+
     const titleDecoration = (line: number) => ({
       range: new monaco.Range(line, 1, line, 1),
       options: {
