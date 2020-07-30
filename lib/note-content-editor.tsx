@@ -84,6 +84,7 @@ class NoteContentEditor extends Component<Props> {
   }
 
   componentWillUnmount() {
+    window?.electron.removeListener('editorCommand');
     window.removeEventListener('keydown', this.handleKeys, true);
   }
 
@@ -158,7 +159,7 @@ class NoteContentEditor extends Component<Props> {
     window.monaco = monaco;
     this.editor = editor;
 
-    window.electron.receive('appCommand', (command) => {
+    window?.electron.receive('editorCommand', (command) => {
       switch (command.action) {
         case 'redo':
           editor.trigger('', 'redo');
