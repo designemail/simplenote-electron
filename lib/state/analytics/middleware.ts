@@ -44,16 +44,18 @@ export const middleware: S.Middleware = (store) => {
 
     switch (action.type) {
       case 'SET_ANALYTICS':
-        if (nextState.data.analyticsAllowed === true) {
+        // Global to be checked in analytics.tracks.recordEvent()
+        window.analyticsEnabled = action.allowAnalytics;
+
+        if (action.allowAnalytics) {
           // make sure that tracking starts after preferences are loaded
           eventQueue.forEach(([name, properties]) =>
             analytics.tracks.recordEvent(name, properties)
           );
         }
+
         eventQueue = [];
 
-        // Global to be checked in analytics.tracks.recordEvent()
-        window.analyticsEnabled = action.allowAnalytics;
         break;
 
       /* events that map to an action directly */
