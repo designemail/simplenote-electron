@@ -161,6 +161,10 @@ export const initSimperium = (
     });
   });
 
+  preferencesBucket.channel.on('ready', () =>
+    preferencesBucket.channel.sendIndexRequest()
+  );
+
   if (createWelcomeNote) {
     import(
       /* webpackChunkName: 'welcome-message' */ '../../welcome-message'
@@ -188,6 +192,7 @@ export const initSimperium = (
     tagQueue.add(tagHash, Date.now() + delay);
 
   if ('production' !== process.env.NODE_ENV) {
+    window.preferencesBucket = preferencesBucket;
     window.noteBucket = noteBucket;
     window.tagBucket = tagBucket;
     window.noteQueue = noteQueue;
@@ -211,13 +216,23 @@ export const initSimperium = (
     const nextState = store.getState();
 
     switch (action.type) {
-      case 'ADD_NOTE_TAG':
-        if (!prevState.data.tags.has(t(action.tagName))) {
-          queueTagUpdate(t(action.tagName));
+      case 'ADD_COLLABORATOR':
+      case 'ADD_NOTE_TAG': {
+        const tagHash = t(
+          action.type === 'ADD_COLLABORATOR'
+            ? action.collaboratorAccount
+            : action.tagName
+        );
+
+        if (!prevState.data.tags.has(tagHash)) {
+          queueTagUpdate(tagHash);
         }
+
         queueNoteUpdate(action.noteId);
         return result;
+      }
 
+      case 'REMOVE_COLLABORATOR':
       case 'REMOVE_NOTE_TAG':
         queueNoteUpdate(action.noteId);
         return result;
@@ -302,19 +317,6 @@ export const initSimperium = (
             {
               ...preferences.data,
               analytics_enabled: action.allowAnalytics,
-            },
-            { sync: true }
-          );
-        });
-        return result;
-
-      case 'TOGGLE_ANALYTICS':
-        preferencesBucket.get('preferences-key').then((preferences) => {
-          preferencesBucket.update(
-            'preferences-key',
-            {
-              ...preferences.data,
-              analytics_enabled: !preferences.data.analytics_enabled,
             },
             { sync: true }
           );

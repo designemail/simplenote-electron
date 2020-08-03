@@ -17,6 +17,7 @@ import { omit } from 'lodash';
 import { isElectron } from '../utils/platform';
 
 import * as persistence from './persistence';
+import { middleware as analyticsMiddleware } from './analytics/middleware';
 import dataMiddleware from './data/middleware';
 import electronMiddleware from './electron/middleware';
 import { middleware as searchMiddleware } from '../search';
@@ -49,20 +50,28 @@ export type State = {
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-export const makeStore = (accountName: string, ...middlewares: Middleware[]) =>
+export const makeStore = (
+  accountName: string | null,
+  ...middlewares: Middleware[]
+) =>
   persistence
     .loadState(accountName)
     .then(([initialData, persistenceMiddleware]) =>
       createStore<State, A.ActionType, {}, {}>(
         reducers,
-        initialData,
+        {
+          ...initialData,
+          settings: {
+            ...initialData.settings,
+            accountName: initialData.settings?.accountName ?? accountName,
+          },
+        },
         composeEnhancers(
           persistState('settings', {
             key: 'simpleNote',
             slicer: (path) => (state) => ({
               // Omit property from persisting
               [path]: omit(state[path], [
-                'accountName',
                 'allowNotifications',
                 'focusModeEnabled',
               ]),
@@ -70,6 +79,7 @@ export const makeStore = (accountName: string, ...middlewares: Middleware[]) =>
           }),
           applyMiddleware(
             dataMiddleware,
+            analyticsMiddleware,
             browserMiddleware,
             searchMiddleware,
             searchFieldMiddleware,

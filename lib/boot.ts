@@ -18,6 +18,12 @@ const clearStorage = (): Promise<void> =>
     localStorage.removeItem('localQueue:tag');
     localStorage.removeItem('stored_user');
 
+    const settings = localStorage.getItem('simpleNote');
+    if (settings) {
+      const { accountName, ...otherSettings } = settings;
+      localStorage.setItem('simpleNote', otherSettings);
+    }
+
     Promise.all([
       new Promise((resolve) => {
         const r = indexedDB.deleteDatabase('ghost');
@@ -173,7 +179,6 @@ const run = (
       bootWithToken(
         () => {
           bootLoggingOut();
-          analytics.tracks.recordEvent('user_signed_out');
           clearStorage().then(() => {
             if (window.webConfig?.signout) {
               window.webConfig.signout(forceReload);
@@ -196,7 +201,6 @@ const run = (
     bootWithoutAuth(
       (token: string, username: string, createWelcomeNote: boolean) => {
         saveAccount(token, username);
-        analytics.tracks.recordEvent('user_signed_in');
         run(token, username, createWelcomeNote);
       }
     );

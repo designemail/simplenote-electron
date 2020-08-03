@@ -59,7 +59,7 @@ export const loadState = (
             }
 
             try {
-              if (state.accountName !== accountName) {
+              if (accountName !== null && state.accountName !== accountName) {
                 resolve([{}, middleware]);
                 return;
               }
@@ -73,9 +73,13 @@ export const loadState = (
 
               const data: T.RecursivePartial<S.State> = {
                 data: {
+                  analyticsAllowed: state.allowAnalytics ?? null,
                   notes: new Map(state.notes),
                   noteTags,
                   tags: new Map(state.tags),
+                },
+                settings: {
+                  accountName: state.accountName,
                 },
                 simperium: {
                   ghosts: [new Map(state.cvs), new Map(state.ghosts)],
@@ -165,6 +169,7 @@ export const saveState = (state: S.State) => {
 
   const data = {
     accountName: state.settings.accountName,
+    allowAnalytics: state.data.analyticsAllowed,
     notes,
     noteTags,
     tags,
