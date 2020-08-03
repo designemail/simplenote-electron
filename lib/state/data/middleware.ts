@@ -95,11 +95,7 @@ export const middleware: S.Middleware = (store) => (
     case 'TOGGLE_ANALYTICS':
       return next({
         type: 'SET_ANALYTICS',
-        allowAnalytics:
-          // if we don't know then we should default to opting out
-          state.data.analyticsAllowed === null
-            ? false
-            : !state.data.analyticsAllowed,
+        allowAnalytics: !state.data.analyticsAllowed,
       });
 
     case 'TRASH_OPEN_NOTE':
